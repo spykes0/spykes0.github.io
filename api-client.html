@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How ytfarm uses YouTube API Services</title>
+  <meta name="description" content="How the ytfarm API client signs in, which YouTube API methods it calls, and its safeguards.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>How ytfarm uses YouTube API Services</h1>
+    <p class="meta">API client documentation · 28 October 2026</p>
+
+    <p>ytfarm is a private command-line tool. Its only user is its owner, and it only acts on YouTube channels the
+      owner owns. It has no public website, no sign-up and no screens that show YouTube data to anyone. This page
+      describes exactly what it does with YouTube API Services.</p>
+
+    <h2>Sign-in</h2>
+    <ul>
+      <li>Each channel is connected once with Google's OAuth 2.0 flow for limited-input devices: the tool shows a
+        code, the owner enters it at google.com/device, picks the channel and approves access.</li>
+      <li>Scope requested: <code>https://www.googleapis.com/auth/youtube</code> (needed for uploads, schedules,
+        thumbnails and playlists on the owner's channels).</li>
+      <li>The refresh token is stored encrypted in the owner's private repository. The owner can revoke it at any
+        time in their Google account settings, or with the tool's <code>disconnect</code> command.</li>
+      <li>The tool refuses to connect two of its channels to the same YouTube channel, and checks before every
+        upload that the login still opens the expected channel.</li>
+    </ul>
+
+    <h2>Publishing a video</h2>
+    <ol>
+      <li>The owner prepares a plan: video files, titles, descriptions, tags and thumbnails.</li>
+      <li><strong>Dry run.</strong> The tool reads the channel's own scheduled uploads and shows the owner which
+        release slot each video would get. Nothing is uploaded.</li>
+      <li><strong>Owner approval.</strong> Only after the owner approves does the tool upload.</li>
+      <li>Each video is uploaded as <em>private</em> with a scheduled release time (<code>status.publishAt</code>),
+        made-for-kids declared, and altered or synthetic content disclosed when it applies.</li>
+      <li>The tool sets the thumbnail, adds the video to the channel's playlist, and reads the video back to confirm
+        YouTube kept the schedule.</li>
+    </ol>
+    <p>At most one long-form video and five Shorts a day per channel, matching each channel's publishing schedule.</p>
+
+    <h2>API methods used</h2>
+    <ul>
+      <li><code>videos.insert</code> (resumable upload): upload the owner's video, private with a release time.</li>
+      <li><code>thumbnails.set</code>: the owner's custom thumbnail.</li>
+      <li><code>playlistItems.insert</code>, <code>playlists.list</code>, <code>playlists.insert</code>: add the
+        video to the owner's playlist (created once if missing).</li>
+      <li><code>channels.list</code> (<code>mine=true</code>): confirm which channel the login opens and find its
+        uploads playlist.</li>
+      <li><code>playlistItems.list</code>, <code>videos.list</code>: read the owner's own recent uploads and their
+        schedule, to find free release slots and confirm each upload.</li>
+    </ul>
+
+    <h2>What ytfarm never does</h2>
+    <ul>
+      <li>It does not access other people's channels, comments, messages, subscribers or analytics.</li>
+      <li>It does not show, store, sell or share YouTube data with anyone; it keeps only the encrypted sign-in and a
+        log of its own uploads (video IDs, titles, links and times).</li>
+      <li>It does not like, comment, subscribe, or take any action on YouTube other than publishing the owner's own
+        videos.</li>
+      <li>It never uploads without the owner's explicit approval.</li>
+    </ul>
+
+    <h2>Contact</h2>
+    <p><a href="mailto:learntobedivine@gmail.com">learntobedivine@gmail.com</a></p>
+
+    <nav>
+      <a href="./">ytfarm home</a>
+      <a href="privacy.html">Privacy policy</a>
+      <a href="https://www.youtube.com/t/terms">YouTube Terms of Service</a>
+      <a href="https://policies.google.com/privacy">Google Privacy Policy</a>
+    </nav>
+  </main>
+</body>
+</html>
